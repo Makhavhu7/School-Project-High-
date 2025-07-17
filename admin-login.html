@@ -4,19 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EduHub - Admin Login</title>
-    <meta name="description" content="Enter your OTP to access the admin dashboard" />
+    <meta name="description" content="Enter your credentials to access the admin dashboard" />
     <meta name="author" content="EduHub" />
     <meta property="og:title" content="EduHub - Admin Login" />
-    <meta property="og:description" content="Enter your OTP to access the admin dashboard" />
+    <meta property="og:description" content="Enter your credentials to access the admin dashboard" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@eduhub" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    <script src="https://cdn.tailwindcss.com"></script> <!-- Replace with <link href="/css/output.css" rel="stylesheet"> for production -->
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Replace with compiled CSS for production: see Tailwind setup instructions -->
     <!-- Firebase SDK CDN with module type -->
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
     <style>
       :root {
         --background: 0 0% 100%;
@@ -139,7 +140,7 @@
             <h1 class="text-2xl font-bold mb-2">
               <span class="bg-[var(--gradient-primary)] bg-clip-text">Admin Login</span>
             </h1>
-            <p class="text-[hsl(var(--muted-foreground))]">Request an OTP or enter it to log in</p>
+            <p class="text-[hsl(var(--muted-foreground))]">Enter your email to receive a sign-in link</p>
           </div>
           <!-- Login Form -->
           <div class="mt-6">
@@ -148,15 +149,8 @@
                 <label for="email" class="block text-sm font-medium">Email</label>
                 <input id="email" type="email" value="mbofhenijunior7@gmail.com" placeholder="Enter your email" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" readonly />
               </div>
-              <div class="space-y-2">
-                <label for="otp" class="block text-sm font-medium">OTP</label>
-                <input id="otp" type="text" placeholder="Enter 6-digit OTP" class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" />
-              </div>
-              <button type="submit" id="request-otp-button" class="w-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] py-2 rounded-[var(--radius)] shadow-[var(--shadow-glow)] font-semibold hover:shadow-[0 6px 8px rgba(56, 189, 248, 0.4)] hover:translate-y-[-2px] transition-all duration-300">
-                <span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Request OTP
-              </button>
-              <button type="submit" id="verify-otp-button" class="w-full bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] py-2 rounded-[var(--radius)] shadow-[var(--shadow-accent-glow)] font-semibold hover:shadow-[0 6px 8px rgba(56, 189, 248, 0.4)] hover:translate-y-[-2px] transition-all duration-300 hidden">
-                <span class="bg-[var(--gradient-accent)] bg-clip-text text-transparent">EduHub</span> Verify OTP
+              <button type="submit" id="submit-button" class="w-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] py-2 rounded-[var(--radius)] shadow-[var(--shadow-glow)] font-semibold hover:shadow-[0 6px 8px rgba(56, 189, 248, 0.4)] hover:translate-y-[-2px] transition-all duration-300">
+                <span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link
               </button>
             </form>
             <div class="mt-6 p-4 bg-[hsl(var(--muted)/0.2)] rounded-[var(--radius)]">
@@ -197,10 +191,20 @@
 
       // Initialize Firebase
       import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-      import { getAuth, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+      import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+      import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // Generate a unique session ID
+      const generateSessionId = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      };
 
       function showToast(title, description, variant = 'default') {
         const toast = document.createElement('div');
@@ -209,99 +213,101 @@
         }`;
         toast.innerHTML = `<h3 class="font-bold">${title}</h3><p>${description}</p>`;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 5000);
+        setTimeout(() => toast.remove(), 3000);
       }
 
-      const loginForm = document.getElementById('login-form');
-      const requestOtpButton = document.getElementById('request-otp-button');
-      const verifyOtpButton = document.getElementById('verify-otp-button');
-      const otpInput = document.getElementById('otp');
-      const emailInput = document.getElementById('email');
-
-      // Make email input read-only on page load
-      document.addEventListener('DOMContentLoaded', () => {
-        emailInput.readOnly = true;
-        emailInput.value = 'mbofhenijunior7@gmail.com';
-      });
-
-      let isOtpRequested = false;
-
-      loginForm.addEventListener('submit', async (e) => {
+      document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const emailInput = document.getElementById('email');
         const email = emailInput.value;
+        const submitButton = document.getElementById('submit-button');
+        submitButton.textContent = 'Sending Link...';
+        submitButton.disabled = true;
 
+        // Restrict to mbofhenijunior7@gmail.com
         if (email !== 'mbofhenijunior7@gmail.com') {
           showToast('Access Denied', 'Only mbofhenijunior7@gmail.com is authorized to log in.', 'destructive');
+          submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link';
+          submitButton.disabled = false;
           return;
         }
 
-        if (!isOtpRequested) {
-          // Request OTP
-          requestOtpButton.textContent = 'Sending OTP...';
-          requestOtpButton.disabled = true;
+        // Generate session ID and store in Firestore
+        const sessionId = generateSessionId();
+        try {
+          await setDoc(doc(db, 'authSessions', sessionId), {
+            email: email,
+            status: 'pending',
+            timestamp: new Date().toISOString()
+          });
 
-          try {
-            const response = await fetch('https://us-central1-school-app-39092.cloudfunctions.net/sendOTP', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ data: { email } }),
-              mode: 'cors',
-              credentials: 'same-origin'
-            });
-            const result = await response.json();
-            if (response.ok) {
-              showToast('Success', 'An OTP has been sent to ' + email + '. Check your inbox and spam/junk folders.', 'default');
-              isOtpRequested = true;
-              requestOtpButton.classList.add('hidden');
-              verifyOtpButton.classList.remove('hidden');
-              otpInput.required = true;
-              otpInput.focus();
-            } else {
-              throw new Error(result.error || 'Failed to send OTP');
+          // Configure Firebase to use email link authentication with session ID
+          const actionCodeSettings = {
+            url: `https://makhschooleasy.netlify.app/admin-login.html?sessionId=${sessionId}`,
+            handleCodeInApp: true,
+            dynamicLinkDomain: 'your-dynamic-link-domain.firebaseapp.com' // Replace with your Firebase Dynamic Links domain
+          };
+
+          // Send sign-in link
+          await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+          window.localStorage.setItem('emailForSignIn', email);
+          window.localStorage.setItem('authSessionId', sessionId);
+          showToast('Success', 'A sign-in link has been sent to ' + email + '. Check your inbox and spam/junk folders.');
+
+          // Listen for Firestore changes
+          const unsubscribe = onSnapshot(doc(db, 'authSessions', sessionId), (doc) => {
+            if (doc.exists() && doc.data().status === 'authenticated') {
+              showToast('Login Successful', 'Redirecting to the admin dashboard!');
+              window.location.href = '/admin-dashboard.html';
+              unsubscribe(); // Stop listening
             }
-          } catch (error) {
-            console.error('Request OTP Error:', error);
-            showToast('Error', error.message || 'Failed to send OTP. Check Firebase Functions logs and ensure CORS is configured.', 'destructive');
-          } finally {
-            requestOtpButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Request OTP';
-            requestOtpButton.disabled = false;
-          }
-        } else {
-          // Verify OTP
-          const otp = otpInput.value.trim();
-          if (!otp || otp.length !== 6 || !/^\d{6}$/.test(otp)) {
-            showToast('Error', 'Please enter a valid 6-digit OTP.', 'destructive');
-            return;
-          }
-
-          verifyOtpButton.textContent = 'Verifying OTP...';
-          verifyOtpButton.disabled = true;
-
-          try {
-            const response = await fetch('https://us-central1-school-app-39092.cloudfunctions.net/verifyOTP', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ data: { email, otp } }),
-              mode: 'cors',
-              credentials: 'same-origin'
-            });
-            const result = await response.json();
-            if (response.ok) {
-              const token = result.token;
-              await signInWithCustomToken(auth, token);
-              showToast('Login Successful', 'Redirecting to the admin dashboard!', 'default');
-              window.location.replace('/admin-dashboard.html');
-            } else {
-              throw new Error(result.error || 'Invalid or expired OTP');
-            }
-          } catch (error) {
-            console.error('Verify OTP Error:', error);
-            showToast('Error', error.message || 'Invalid or expired OTP. Please request a new one.', 'destructive');
-          } finally {
-            verifyOtpButton.textContent = '<span class="bg-[var(--gradient-accent)] bg-clip-text text-transparent">EduHub</span> Verify OTP';
-            verifyOtpButton.disabled = false;
-          }
+          });
+        } catch (error) {
+          console.error('Send Sign-In Link Error:', error);
+          showToast('Error', error.message || 'Failed to send sign-in link. Ensure the domain is authorized in Firebase Console.', 'destructive');
+        } finally {
+          submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link';
+          submitButton.disabled = false;
         }
+      });
+
+      // Handle the email link when the user clicks it
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('sessionId');
+      if (isSignInWithEmailLink(auth, window.location.href) && window.localStorage.getItem('emailForSignIn')) {
+        signInWithEmailLink(auth, window.localStorage.getItem('emailForSignIn'), window.location.href)
+          .then(async (result) => {
+            window.localStorage.removeItem('emailForSignIn');
+            if (result.user.email !== 'mbofhenijunior7@gmail.com') {
+              await signOut(auth);
+              showToast('Access Denied', 'Unauthorized email detected.', 'destructive');
+              return;
+            }
+
+            // Update Firestore to mark session as authenticated
+            if (sessionId) {
+              await setDoc(doc(db, 'authSessions', sessionId), {
+                email: result.user.email,
+                status: 'authenticated',
+                timestamp: new Date().toISOString()
+              }, { merge: true });
+            }
+
+            // Show confirmation on the device that clicked the link
+            showToast('Link Clicked', 'Authentication completed. The initiating device will redirect to the dashboard.');
+            // Optionally, redirect this device to a confirmation page or stay on login
+          })
+          .catch((error) => {
+            console.error('Sign-In Link Error:', error);
+            showToast('Login Failed', error.message, 'destructive');
+          });
+      }
+
+      // Make email input read-only on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        const emailInput = document.getElementById('email');
+        emailInput.readOnly = true;
+        emailInput.value = 'mbofhenijunior7@gmail.com';
       });
     </script>
   </body>
