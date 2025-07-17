@@ -13,10 +13,10 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@eduhub" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDK CDN -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Keep for development; replace for production -->
+    <!-- Firebase SDK CDN with module type -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
     <style>
       :root {
         --background: 0 0% 100%;
@@ -146,7 +146,7 @@
             <form id="login-form" class="space-y-4">
               <div class="space-y-2">
                 <label for="email" class="block text-sm font-medium">Email</label>
-                <input id="email" type="email" value="mbofheni@gmail.com" placeholder="Enter your email" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" />
+                <input id="email" type="email" value="mbofhenijunior7@gmail.com" placeholder="Enter your email" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" readonly />
               </div>
               <button type="submit" id="submit-button" class="w-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] py-2 rounded-[var(--radius)] shadow-[var(--shadow-glow)] font-semibold hover:shadow-[0 6px 8px rgba(56, 189, 248, 0.4)] hover:translate-y-[-2px] transition-all duration-300">
                 <span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link
@@ -176,27 +176,30 @@
       </footer>
     </div>
 
-<script>
+    <script type="module">
       // Secure Firebase Configuration (Move to environment variables in production)
       const firebaseConfig = {
-        apiKey: process.env.FIREBASE_API_KEY || "AIzaSyDZjmRfYDPW1EC58Wj0l9yxjoE6rgqhqc8",
-        authDomain: process.env.FIREBASE_AUTH_DOMAIN || "school-app-39092.firebaseapp.com",
-        projectId: process.env.FIREBASE_PROJECT_ID || "school-app-39092",
-        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "school-app-39092.firebasestorage.app",
-        messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "1043664358438",
-        appId: process.env.FIREBASE_APP_ID || "1:1043664358438:web:a91aab2d53a541368a2ae7",
-        measurementId: process.env.FIREBASE_MEASUREMENT_ID || "G-ENPLJLLP1M"
+        apiKey: "AIzaSyDZjmRfYDPW1EC58Wj0l9yxjoE6rgqhqc8", // Hardcoded for now; replace with env vars
+        authDomain: "school-app-39092.firebaseapp.com",
+        projectId: "school-app-39092",
+        storageBucket: "school-app-39092.firebasestorage.app",
+        messagingSenderId: "1043664358438",
+        appId: "1:1043664358438:web:a91aab2d53a541368a2ae7",
+        measurementId: "G-ENPLJLLP1M"
       };
 
       // Initialize Firebase
-      const app = firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+      import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
 
       // Configure Firebase to use email link authentication
       const actionCodeSettings = {
-        url: process.env.ACTION_URL || 'https://makhschooleasy.netlify.app/admin-dashboard.html', // Update to deployed URL
+        url: 'https://makhschooleasy.netlify.app/admin-dashboard.html', // Update to deployed URL
         handleCodeInApp: true,
-        dynamicLinkDomain: process.env.DYNAMIC_LINK_DOMAIN || 'your-dynamic-link-domain.firebaseapp.com' // Replace with your domain
+        dynamicLinkDomain: 'your-dynamic-link-domain.firebaseapp.com' // Replace with your domain
       };
 
       function showToast(title, description, variant = 'default') {
@@ -225,7 +228,7 @@
         }
 
         // Send sign-in link
-        auth.sendSignInLinkToEmail(email, actionCodeSettings)
+        sendSignInLinkToEmail(auth, email, actionCodeSettings)
           .then(() => {
             window.localStorage.setItem('emailForSignIn', email);
             showToast('Success', 'A sign-in link has been sent to ' + email + '. Check your inbox.');
@@ -240,13 +243,12 @@
       });
 
       // Handle the email link when the user clicks it
-      if (auth.isSignInWithEmailLink(window.location.href) && window.localStorage.getItem('emailForSignIn')) {
-        auth.signInWithEmailLink(window.localStorage.getItem('emailForSignIn'), window.location.href)
+      if (isSignInWithEmailLink(window.location.href) && window.localStorage.getItem('emailForSignIn')) {
+        signInWithEmailLink(auth, window.localStorage.getItem('emailForSignIn'), window.location.href)
           .then((result) => {
             window.localStorage.removeItem('emailForSignIn');
-            // Verify email matches expected admin email
             if (result.user.email !== 'mbofhenijunior7@gmail.com') {
-              auth.signOut().then(() => {
+              signOut(auth).then(() => {
                 showToast('Access Denied', 'Unauthorized email detected.', 'destructive');
               });
               return;
@@ -263,7 +265,7 @@
       document.addEventListener('DOMContentLoaded', () => {
         const emailInput = document.getElementById('email');
         emailInput.readOnly = true;
-        emailInput.value = 'mbofhenijunior7@gmail.com'; // Ensure it's set to the correct email
+        emailInput.value = 'mbofhenijunior7@gmail.com';
       });
     </script>
   </body>
