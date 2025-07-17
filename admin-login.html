@@ -176,7 +176,7 @@
       </footer>
     </div>
 
-    <script type="module">
+ <script type="module">
       // Secure Firebase Configuration
       const firebaseConfig = {
         apiKey: "AIzaSyDZjmRfYDPW1EC58Wj0l9yxjoE6rgqhqc8",
@@ -197,7 +197,6 @@
 
       // Configure Firebase to use email link authentication
       const actionCodeSettings = {
-        // Use a local URL for development; update to deployed URL for production
         url: window.location.origin + '/admin-dashboard.html', // e.g., http://localhost:5500/admin-dashboard.html
         handleCodeInApp: true,
         dynamicLinkDomain: 'your-dynamic-link-domain.firebaseapp.com' // Replace with your configured domain
@@ -238,7 +237,7 @@
           })
           .catch((error) => {
             console.error('Send Sign-In Link Error:', error); // Debug the error
-            showToast('Error', error.message || 'Failed to send sign-in link.', 'destructive');
+            showToast('Error', error.message || 'Failed to send sign-in link. Ensure email link sign-in is enabled in Firebase Console.', 'destructive');
             submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link';
             submitButton.disabled = false;
           });
