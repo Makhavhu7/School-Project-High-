@@ -14,6 +14,9 @@
     <meta name="twitter:site" content="@eduhub" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js"></script>
     <style>
       :root {
         --background: 0 0% 100%;
@@ -69,7 +72,7 @@
         --muted-foreground: 215 16% 65%;
         --accent: 195 100% 85%;
         --accent-foreground: 222 84% 4.9%;
-        --accent-głow: 195 100% 90%;
+        --accent-glow: 195 100% 90%;
         --destructive: 0 63% 31%;
         --destructive-foreground: 210 40% 98%;
         --border: 217 33% 17%;
@@ -101,6 +104,30 @@
       .tab-content.active {
         display: block;
       }
+
+      .sidebar {
+        width: 250px;
+        background-color: hsl(var(--sidebar-background));
+        border-right: 1px solid hsl(var(--sidebar-border));
+        height: calc(100vh - 64px);
+        position: fixed;
+        top: 64px;
+        left: 0;
+        padding: 1rem;
+        overflow-y: auto;
+      }
+
+      .sidebar-item {
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius);
+        margin-bottom: 0.25rem;
+        color: hsl(var(--sidebar-foreground));
+        transition: background-color 0.3s ease;
+      }
+
+      .sidebar-item:hover {
+        background-color: hsl(var(--sidebar-accent));
+      }
     </style>
   </head>
   <body>
@@ -111,13 +138,19 @@
           <a href="/" class="text-2xl font-bold bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</a>
           <div class="space-x-4">
             <a href="/materials.html" class="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]">Materials</a>
-            <a href="/admin-login.html" class="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]">Admin</a>
+            <a href="/admin-login.html" class="btn-admin py-2 px-4 rounded-[var(--radius)]">Admin Login</a>
           </div>
         </div>
       </nav>
 
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <h3 class="text-lg font-semibold mb-4 text-[hsl(var(--sidebar-foreground))]">Uploaded Materials</h3>
+        <div id="material-list" class="space-y-2"></div>
+      </div>
+
       <!-- Main Content -->
-      <div class="pt-20 pb-12 px-4">
+      <div class="pt-20 pb-12 pl-[250px] pr-4">
         <div class="container mx-auto">
           <!-- Header -->
           <div class="mb-8">
@@ -206,6 +239,7 @@
                         <option value="notes">Study Notes</option>
                         <option value="video">Video Lecture</option>
                         <option value="question-paper">Question Paper</option>
+                        <option value="slides">Slides</option>
                       </select>
                     </div>
                   </div>
@@ -286,9 +320,36 @@
           </div>
         </div>
       </div>
+
+      <!-- Footer -->
+      <footer class="bg-[hsl(var(--card)/0.3)] py-8 px-4 border-t border-[hsl(var(--border))]">
+        <div class="container mx-auto text-center">
+          <p class="text-[hsl(var(--muted-foreground))] mb-4">© 2025 EduHub. Empowering students through quality education.</p>
+          <div class="flex justify-center space-x-4">
+            <a href="/materials.html" class="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">Materials</a>
+            <a href="/admin-login.html" class="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">Admin Login</a>
+            <a href="#" class="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">Contact Us</a>
+          </div>
+        </div>
+      </footer>
     </div>
 
     <script>
+      // Firebase Configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDZjmRfYDPW1EC58Wj0l9yxjoE6rgqhqc8",
+        authDomain: "school-app-39092.firebaseapp.com",
+        projectId: "school-app-39092",
+        storageBucket: "school-app-39092.firebasestorage.app",
+        messagingSenderId: "1043664358438",
+        appId: "1:1043664358438:web:a91aab2d53a541368a2ae7",
+        measurementId: "G-ENPLJLLP1M"
+      };
+
+      // Initialize Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      const storage = firebase.storage();
+
       function showToast(title, description) {
         const toast = document.createElement('div');
         toast.className = 'fixed bottom-4 right-4 bg-[hsl(var(--card))] text-[hsl(var(--foreground))] p-4 rounded-[var(--radius)] shadow-[var(--shadow-glow)] z-50';
@@ -313,7 +374,10 @@
         });
       });
 
-      // Form handling
+      // Upload handling
+      let uploadedMaterials = [];
+      const materialList = document.getElementById('material-list');
+
       document.getElementById('upload-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const title = document.getElementById('title').value;
@@ -332,13 +396,38 @@
         uploadButton.textContent = 'Uploading...';
         uploadButton.disabled = true;
 
-        setTimeout(() => {
-          showToast('Upload Successful', `"${title}" has been uploaded successfully!`);
-          document.getElementById('upload-form').reset();
-          document.getElementById('file-upload').value = '';
-          uploadButton.textContent = 'Upload Material';
-          uploadButton.disabled = false;
-        }, 2000);
+        // Upload to Firebase Storage
+        const storageRef = storage.ref(`materials/${file.name}`);
+        const uploadTask = storageRef.put(file);
+
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            // Handle progress (optional)
+          },
+          (error) => {
+            showToast('Upload Failed', error.message, 'destructive');
+            uploadButton.textContent = 'Upload Material';
+            uploadButton.disabled = false;
+          },
+          () => {
+            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+              // Store metadata (simplified; in production, use Firestore)
+              uploadedMaterials.push({ title, type, subject, grade, description, url: downloadURL });
+              // Update sidebar
+              const materialItem = document.createElement('div');
+              materialItem.className = 'sidebar-item';
+              materialItem.textContent = title;
+              materialList.appendChild(materialItem);
+
+              showToast('Upload Successful', `"${title}" has been uploaded successfully!`);
+              document.getElementById('upload-form').reset();
+              document.getElementById('file-upload').value = '';
+              uploadButton.textContent = 'Upload Material';
+              uploadButton.disabled = false;
+            });
+          }
+        );
       });
     </script>
   </body>

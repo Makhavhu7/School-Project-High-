@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduHub - Study Materials</title>
+    <meta name="description" content="Download notes, watch videos, and practice with question papers" />
+    <meta name="author" content="EduHub" />
+    <meta property="og:title" content="EduHub - Study Materials" />
+    <meta property="og:description" content="Download notes, watch videos, and practice with question papers" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@eduhub" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+    <style>
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 84% 4.9%;
+        --primary: 210 100% 60%;
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 210 100% 70%;
+        --secondary: 210 40% 96%;
+        --secondary-foreground: 222 47% 11%;
+        --muted: 210 40% 96%;
+        --muted-foreground: 215 16% 47%;
+        --accent: 195 100% 85%;
+        --accent-foreground: 222 84% 4.9%;
+        --accent-glow: 195 100% 90%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 214 32% 91%;
+        --input: 214 32% 91%;
+        --ring: 210 100% 60%;
+        --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+        --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-glow)));
+        --gradient-hero: linear-gradient(135deg, hsl(0 0% 96%), hsl(210 40% 98%));
+        --shadow-glow: 0 0 30px hsl(var(--primary) / 0.2);
+        --shadow-accent-glow: 0 0 20px hsl(var(--accent) / 0.3);
+        --radius: 0.75rem;
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 240 5.9% 10%;
+        --sidebar-primary-foreground: 0 0% 98%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+      }
+
+      .dark {
+        --background: 222 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 210 100% 60%;
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 210 100% 70%;
+        --secondary: 217 33% 17%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217 33% 17%;
+        --muted-foreground: 215 16% 65%;
+        --accent: 195 100% 85%;
+        --accent-foreground: 222 84% 4.9%;
+        --accent-glow: 195 100% 90%;
+        --destructive: 0 63% 31%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217 33% 17%;
+        --input: 217 33% 17%;
+        --ring: 210 100% 60%;
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 224.3 76.3% 48%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+      }
+
+      * {
+        border-color: hsl(var(--border));
+      }
+
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+      }
+
+      .material-viewer {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .material-viewer.open {
+        display: flex;
+      }
+
+      .material-viewer-content {
+        background: hsl(var(--card));
+        border-radius: var(--radius);
+        padding: 2rem;
+        max-width: 80%;
+        max-height: 80%;
+        overflow: auto;
+      }
+
+            .btn-admin {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        box-shadow: 0 4px 6px rgba(56, 189, 248, 0.3); /* Blue shadow */
+        transition: all 0.3s ease;
+      }
+
+      .btn-admin:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(56, 189, 248, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="min-h-screen bg-[var(--gradient-hero)]">
+      <!-- Navigation -->
+ <nav class="bg-[hsl(var(--card)/0.8)] border-b border-[hsl(var(--border)/0.5)] backdrop-blur-sm fixed w-full top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+          <a href="/" class="text-2xl font-bold bg-[var(--gradient-primary)] bg-clip-text">EduHub</a>
+          <div class="space-x-4">
+            <a href="materials.html" class="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]">Materials</a>
+            <a href="admin-login.html" class="btn-admin py-2 px-4 rounded-[var(--radius)]">Admin Login</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <div class="pt-20 pb-12 px-4">
+        <div class="container mx-auto">
+          <!-- Header -->
+          <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">
+              <span class="bg-[var(--gradient-primary)] bg-clip-text ">Study Materials</span>
+            </h1>
+            <p class="text-xl text-[hsl(var(--muted-foreground))]">Download notes, watch videos, and practice with question papers</p>
+          </div>
+
+          <!-- Search and Filters -->
+          <div class="mb-8 bg-[hsl(var(--card)/0.5)] backdrop-blur-sm border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)] p-6">
+            <div class="grid md:grid-cols-4 gap-4">
+              <div class="relative">
+                <svg class="absolute left-3 top-3 h-4 w-4 text-[hsl(var(--muted-foreground))]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input id="search" type="text" placeholder="Search materials..." class="w-full pl-10 py-2 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" />
+              </div>
+              <div>
+                <select id="filter-type" class="w-full py-2 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+                  <option value="all">All Types</option>
+                  <option value="notes">Notes</option>
+                  <option value="video">Videos</option>
+                  <option value="question-paper">Question Papers</option>
+                  <option value="slides">Slides</option>
+                </select>
+              </div>
+              <div>
+                <select id="filter-subject" class="w-full py-2 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+                  <option value="all">All Subjects</option>
+                  <option value="Physics">Physics</option>
+                  <option value="Chemistry">Chemistry</option>
+                  <option value="Mathematics">Mathematics</option>
+                  <option value="Biology">Biology</option>
+                  <option value="English">English</option>
+                </select>
+              </div>
+              <div>
+                <select id="filter-grade" class="w-full py-2 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+                  <option value="all">All Grades</option>
+                  <option value="Grade 10">Grade 10</option>
+                  <option value="Grade 11">Grade 11</option>
+                  <option value="Grade 12">Grade 12</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Materials Grid -->
+          <div id="materials-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Materials will be populated by JavaScript -->
+          </div>
+
+          <div id="no-materials" class="text-center py-12 hidden">
+            <p class="text-xl text-[hsl(var(--muted-foreground))]">No materials found matching your criteria.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Material Viewer -->
+      <div id="material-viewer" class="material-viewer">
+        <div class="material-viewer-content">
+          <div class="flex justify-between items-center mb-4">
+            <h2 id="viewer-title" class="text-xl font-bold"></h2>
+            <button id="viewer-close" class="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]">
+              <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <p id="viewer-description" class="text-[hsl(var(--muted-foreground))] mb-4"></p>
+          <div id="viewer-content"></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="bg-[hsl(var(--card)/0.3)] py-8 px-4 border-t border-[hsl(var(--border))]">
+        <div class="container mx-auto text-center">
+          <p class="text-[hsl(var(--muted-foreground))] mb-4">© 2025 EduHub. Empowering students through quality education.</p>
+          <div class="flex justify-center space-x-4">
+            <a href="/materials.html" class="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">Materials</a>
+            <a href="/admin-login.html" class="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">Admin Login</a>
+            <a href="#" class="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">Contact Us</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Firebase Configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDZjmRfYDPW1EC58Wj0l9yxjoE6rgqhqc8",
+        authDomain: "school-app-39092.firebaseapp.com",
+        projectId: "school-app-39092",
+        storageBucket: "school-app-39092.firebasestorage.app",
+        messagingSenderId: "1043664358438",
+        appId: "1:1043664358438:web:a91aab2d53a541368a2ae7",
+        measurementId: "G-ENPLJLLP1M"
+      };
+
+      // Initialize Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      function showToast(title, description) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 bg-[hsl(var(--card))] text-[hsl(var(--foreground))] p-4 rounded-[var(--radius)] shadow-[var(--shadow-glow)] z-50';
+        toast.innerHTML = `<h3 class="font-bold">${title}</h3><p>${description}</p>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      function getTypeIcon(type) {
+        switch (type) {
+          case 'notes':
+            return `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 006 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>`;
+          case 'video':
+            return `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5l-6 6m0-6l6 6m-9-3h12m-6-9v12" /></svg>`;
+          case 'question-paper':
+            return `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>`;
+          case 'slides':
+            return `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>`;
+          default:
+            return `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 006 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>`;
+        }
+      }
+
+      function getTypeColor(type) {
+        switch (type) {
+          case 'notes':
+            return 'bg-[var(--gradient-primary)]';
+          case 'video':
+            return 'bg-[var(--gradient-accent)]';
+          case 'question-paper':
+            return 'bg-[hsl(var(--primary))]';
+          case 'slides':
+            return 'bg-[hsl(var(--accent))]';
+          default:
+            return 'bg-[hsl(var(--muted))]';
+        }
+      }
+
+      function renderMaterials(materials) {
+        const grid = document.getElementById('materials-grid');
+        const noMaterials = document.getElementById('no-materials');
+        grid.innerHTML = '';
+        if (materials.length === 0) {
+          noMaterials.classList.remove('hidden');
+          return;
+        }
+        noMaterials.classList.add('hidden');
+        materials.forEach(material => {
+          const card = document.createElement('div');
+          card.className = 'bg-[hsl(var(--card)/0.5)] backdrop-blur-sm border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 hover:scale-105';
+          card.innerHTML = `
+            <div class="p-4 pb-3">
+              <div class="flex items-start justify-between">
+                <div class="p-2 rounded-lg ${getTypeColor(material.type)} w-fit">
+                  ${getTypeIcon(material.type)}
+                </div>
+                <span class="text-xs border border-[hsl(var(--border))] rounded px-2 py-1 text-[hsl(var(--foreground))]">${material.grade}</span>
+              </div>
+              <h3 class="text-lg font-bold leading-tight mt-2">${material.title}</h3>
+              <span class="inline-block mt-2 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] rounded px-2 py-1 text-xs">${material.subject}</span>
+            </div>
+            <div class="p-4">
+              <p class="text-[hsl(var(--muted-foreground))] text-sm mb-4">${material.description}</p>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-[hsl(var(--muted-foreground))]">${new Date(material.uploadDate).toLocaleDateString()}</span>
+                <div class="flex gap-2">
+                  <button onclick="viewMaterial('${material.id}')" class="bg-transparent border border-[hsl(var(--border))] text-[hsl(var(--foreground))] px-3 py-1 rounded-[var(--radius)] shadow-[var(--shadow-glow)] text-sm flex items-center">
+                    <svg class="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    View
+                  </button>
+                  <button onclick="downloadMaterial('${material.id}')" class="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] px-3 py-1 rounded-[var(--radius)] shadow-[var(--shadow-glow)] text-sm flex items-center">
+                    <svg class="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Download
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      function filterMaterials(materials) {
+        const searchTerm = document.getElementById('search').value.toLowerCase();
+        const filterType = document.getElementById('filter-type').value;
+        const filterSubject = document.getElementById('filter-subject').value;
+        const filterGrade = document.getElementById('filter-grade').value;
+
+        return materials.filter(material => {
+          const matchesSearch = material.title.toLowerCase().includes(searchTerm) || material.description.toLowerCase().includes(searchTerm);
+          const matchesType = filterType === 'all' || material.type === filterType;
+          const matchesSubject = filterSubject === 'all' || material.subject === filterSubject;
+          const matchesGrade = filterGrade === 'all' || material.grade === filterGrade;
+          return matchesSearch && matchesType && matchesSubject && matchesGrade;
+        });
+      }
+
+      function downloadMaterial(id) {
+        const material = materials.find(m => m.id === id);
+        showToast('Download Started', `Downloading "${material.title}"`);
+        window.open(material.url, '_blank');
+      }
+
+      function viewMaterial(id) {
+        const material = materials.find(m => m.id === id);
+        const viewer = document.getElementById('material-viewer');
+        const title = document.getElementById('viewer-title');
+        const description = document.getElementById('viewer-description');
+        const content = document.getElementById('viewer-content');
+        title.textContent = material.title;
+        description.textContent = material.description;
+        content.innerHTML = material.type === 'video' 
+          ? `<iframe src="${material.url}" class="w-full h-96" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
+          : `<p>Preview not available for this material type. <a href="${material.url}" target="_blank" class="text-[hsl(var(--primary))]">Download to view</a></p>`;
+        viewer.classList.add('open');
+      }
+
+      document.getElementById('viewer-close').addEventListener('click', () => {
+        document.getElementById('material-viewer').classList.remove('open');
+      });
+
+      document.getElementById('search').addEventListener('input', () => {
+        db.collection('materials').get().then((querySnapshot) => {
+          const materials = querySnapshot.docs.map(doc => doc.data());
+          renderMaterials(filterMaterials(materials));
+        });
+      });
+
+      document.getElementById('filter-type').addEventListener('change', () => {
+        db.collection('materials').get().then((querySnapshot) => {
+          const materials = querySnapshot.docs.map(doc => doc.data());
+          renderMaterials(filterMaterials(materials));
+        });
+      });
+
+      document.getElementById('filter-subject').addEventListener('change', () => {
+        db.collection('materials').get().then((querySnapshot) => {
+          const materials = querySnapshot.docs.map(doc => doc.data());
+          renderMaterials(filterMaterials(materials));
+        });
+      });
+
+      document.getElementById('filter-grade').addEventListener('change', () => {
+        db.collection('materials').get().then((querySnapshot) => {
+          const materials = querySnapshot.docs.map(doc => doc.data());
+          renderMaterials(filterMaterials(materials));
+        });
+      });
+
+      // Initial fetch and render
+      let materials = [];
+      db.collection('materials').get().then((querySnapshot) => {
+        materials = querySnapshot.docs.map(doc => doc.data());
+        renderMaterials(materials);
+      }).catch((error) => {
+        console.error("Error fetching materials: ", error);
+        showToast('Error', 'Failed to load materials. Check console for details.');
+      });
+    </script>
+  </body>
+</html>
