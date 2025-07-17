@@ -139,7 +139,7 @@
             <h1 class="text-2xl font-bold mb-2">
               <span class="bg-[var(--gradient-primary)] bg-clip-text">Admin Login</span>
             </h1>
-            <p class="text-[hsl(var(--muted-foreground))]">Enter your email to receive a sign-in link</p>
+            <p class="text-[hsl(var(--muted-foreground))]">Click below to receive a sign-in link</p>
           </div>
           <!-- Login Form -->
           <div class="mt-6">
@@ -197,9 +197,9 @@
 
       // Configure Firebase to use email link authentication
       const actionCodeSettings = {
-        url: 'https://makhschooleasy.netlify.app/admin-dashboard.html', // Updated for production
+        url: 'https://makhschooleasy.netlify.app/admin-dashboard.html', // Production URL
         handleCodeInApp: true,
-        dynamicLinkDomain: 'your-dynamic-link-domain.firebaseapp.com' // Replace with your Firebase Dynamic Links domain
+        dynamicLinkDomain: 'schoolapp39092.page.link' // Replace with your Firebase Dynamic Links domain
       };
 
       function showToast(title, description, variant = 'default') {
@@ -209,7 +209,7 @@
         }`;
         toast.innerHTML = `<h3 class="font-bold">${title}</h3><p>${description}</p>`;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        setTimeout(() => toast.remove(), 5000); // Increased duration for better visibility
       }
 
       document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -232,21 +232,26 @@
         sendSignInLinkToEmail(auth, email, actionCodeSettings)
           .then(() => {
             window.localStorage.setItem('emailForSignIn', email);
-            showToast('Success', 'A sign-in link has been sent to ' + email + '. Check your inbox and spam/junk folders.');
+            showToast('Success', 'A sign-in link has been sent to ' + email + '. Open it on this device to access the dashboard.', 'default');
             submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link';
             submitButton.disabled = false;
           })
           .catch((error) => {
             console.error('Send Sign-In Link Error:', error);
-            showToast('Error', error.message || 'Failed to send sign-in link. Ensure the domain is authorized in Firebase Console.', 'destructive');
+            showToast('Error', error.message || 'Failed to send sign-in link. Ensure the domain is authorized and Dynamic Links are configured in Firebase Console.', 'destructive');
             submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link';
             submitButton.disabled = false;
           });
       });
 
       // Handle the email link when the user clicks it
-      if (isSignInWithEmailLink(auth, window.location.href) && window.localStorage.getItem('emailForSignIn')) {
-        signInWithEmailLink(auth, window.localStorage.getItem('emailForSignIn'), window.location.href)
+      if (isSignInWithEmailLink(auth, window.location.href)) {
+        const email = window.localStorage.getItem('emailForSignIn');
+        if (!email) {
+          showToast('Error', 'Please open the link on the same device and browser where you requested it, or request a new link.', 'destructive');
+          return;
+        }
+        signInWithEmailLink(auth, email, window.location.href)
           .then((result) => {
             window.localStorage.removeItem('emailForSignIn');
             if (result.user.email !== 'mbofhenijunior7@gmail.com') {
@@ -255,12 +260,16 @@
               });
               return;
             }
-            showToast('Login Successful', 'Redirecting to the admin dashboard!');
-            window.location.href = '/admin-dashboard.html';
+            showToast('Login Successful', 'Redirecting to the admin dashboard!', 'default');
+            window.location.replace('/admin-dashboard.html'); // Use replace to avoid back-button issues
           })
           .catch((error) => {
             console.error('Sign-In Link Error:', error);
-            showToast('Login Failed', error.message, 'destructive');
+            let errorMessage = error.message;
+            if (error.code === 'auth/invalid-action-code') {
+              errorMessage = 'The sign-in link is invalid or expired. Please request a new link.';
+            }
+            showToast('Login Failed', errorMessage, 'destructive');
           });
       }
 
