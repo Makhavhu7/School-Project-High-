@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduHub - Admin Dashboard</title>
+    <meta name="description" content="Manage educational content and monitor platform activity" />
+    <meta name="author" content="EduHub" />
+    <meta property="og:title" content="EduHub - Admin Dashboard" />
+    <meta property="og:description" content="Manage educational content and monitor platform activity" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@eduhub" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 84% 4.9%;
+        --primary: 210 100% 60%;
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 210 100% 70%;
+        --secondary: 210 40% 96%;
+        --secondary-foreground: 222 47% 11%;
+        --muted: 210 40% 96%;
+        --muted-foreground: 215 16% 47%;
+        --accent: 195 100% 85%;
+        --accent-foreground: 222 84% 4.9%;
+        --accent-glow: 195 100% 90%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 214 32% 91%;
+        --input: 214 32% 91%;
+        --ring: 210 100% 60%;
+        --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+        --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-glow)));
+        --gradient-hero: linear-gradient(135deg, hsl(0 0% 96%), hsl(210 40% 98%));
+        --shadow-glow: 0 0 30px hsl(var(--primary) / 0.2);
+        --shadow-accent-glow: 0 0 20px hsl(var(--accent) / 0.3);
+        --radius: 0.75rem;
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 240 5.9% 10%;
+        --sidebar-primary-foreground: 0 0% 98%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+      }
+
+      .dark {
+        --background: 222 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 210 100% 60%;
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 210 100% 70%;
+        --secondary: 217 33% 17%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217 33% 17%;
+        --muted-foreground: 215 16% 65%;
+        --accent: 195 100% 85%;
+        --accent-foreground: 222 84% 4.9%;
+        --accent-głow: 195 100% 90%;
+        --destructive: 0 63% 31%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217 33% 17%;
+        --input: 217 33% 17%;
+        --ring: 210 100% 60%;
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 224.3 76.3% 48%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+      }
+
+      * {
+        border-color: hsl(var(--border));
+      }
+
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="min-h-screen bg-[var(--gradient-hero)]">
+      <!-- Navigation -->
+      <nav class="bg-[hsl(var(--card)/0.8)] border-b border-[hsl(var(--border)/0.5)] backdrop-blur-sm fixed w-full top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+          <a href="/" class="text-2xl font-bold bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</a>
+          <div class="space-x-4">
+            <a href="/materials.html" class="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]">Materials</a>
+            <a href="/admin-login.html" class="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]">Admin</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <div class="pt-20 pb-12 px-4">
+        <div class="container mx-auto">
+          <!-- Header -->
+          <div class="mb-8">
+            <h1 class="text-4xl font-bold mb-2">
+              <span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">Admin Dashboard</span>
+            </h1>
+            <p class="text-[hsl(var(--muted-foreground))]">Manage educational content and monitor platform activity</p>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="grid md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-[hsl(var(--card)/0.5)] backdrop-blur-sm border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-[hsl(var(--muted-foreground))]">Total Materials</p>
+                  <p class="text-3xl font-bold">156</p>
+                </div>
+                <svg class="h-8 w-8 text-[hsl(var(--primary))]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 006 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+              </div>
+            </div>
+            <div class="bg-[hsl(var(--card)/0.5)] backdrop-blur-sm border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-[hsl(var(--muted-foreground))]">Video Lectures</p>
+                  <p class="text-3xl font-bold">43</p>
+                </div>
+                <svg class="h-8 w-8 text-[hsl(var(--accent))]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5l-6 6m0-6l6 6m-9-3h12m-6-9v12" />
+                </svg>
+              </div>
+            </div>
+            <div class="bg-[hsl(var(--card)/0.5)] backdrop-blur-sm border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-[hsl(var(--muted-foreground))]">Question Papers</p>
+                  <p class="text-3xl font-bold">67</p>
+                </div>
+                <svg class="h-8 w-8 text-[hsl(var(--primary))]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+            </div>
+            <div class="bg-[hsl(var(--card)/0.5)] backdrop-blur-sm border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-[hsl(var(--muted-foreground))]">Active Students</p>
+                  <p class="text-3xl font-bold">1,234</p>
+                </div>
+                <svg class="h-8 w-8 text-[hsl(var(--accent))]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="space-y-6">
+            <div class="grid grid-cols-3 gap-4 bg-[hsl(var(--card)/0.5)] backdrop-blur-sm rounded-[var(--radius)] p-2">
+              <button id="tab-upload" class="tab-button py-2 px-4 rounded-[var(--radius)] bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] font-semibold">Upload Content</button>
+              <button id="tab-manage" class="tab-button py-2 px-4 rounded-[var(--radius)] bg-transparent text-[hsl(var(--foreground))]">Manage Materials</button>
+              <button id="tab-analytics" class="tab-button py-2 px-4 rounded-[var(--radius)] bg-transparent text-[hsl(var(--foreground))]">Analytics</button>
+            </div>
+
+            <!-- Upload Content Tab -->
+            <div id="content-upload" class="tab-content bg-[hsl(var(--card)/0.5)] backdrop-blur-sm border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)] active">
+              <div class="p-6">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6M15.22 7.097A9 9 0 013 11.986M12 12v8m0-8l-4 4m4-4l4 4" />
+                  </svg>
+                  Upload New Material
+                </h2>
+                <p class="text-[hsl(var(--muted-foreground))] mb-6">Add new study materials, videos, or question papers for students</p>
+                <form id="upload-form" class="space-y-6">
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                      <label for="title" class="block text-sm font-medium">Title</label>
+                      <input id="title" placeholder="Enter material title" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" />
+                    </div>
+                    <div class="space-y-2">
+                      <label for="type" class="block text-sm font-medium">Material Type</label>
+                      <select id="type" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+                        <option value="" disabled selected>Select type</option>
+                        <option value="notes">Study Notes</option>
+                        <option value="video">Video Lecture</option>
+                        <option value="question-paper">Question Paper</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                      <label for="subject" class="block text-sm font-medium">Subject</label>
+                      <select id="subject" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+                        <option value="" disabled selected>Select subject</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Biology">Biology</option>
+                        <option value="English">English</option>
+                      </select>
+                    </div>
+                    <div class="space-y-2">
+                      <label for="grade" class="block text-sm font-medium">Grade Level</label>
+                      <select id="grade" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+                        <option value="" disabled selected>Select grade</option>
+                        <option value="Grade 10">Grade 10</option>
+                        <option value="Grade 11">Grade 11</option>
+                        <option value="Grade 12">Grade 12</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="space-y-2">
+                    <label for="description" class="block text-sm font-medium">Description</label>
+                    <textarea id="description" placeholder="Enter a detailed description of the material" required rows="4" class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]"></textarea>
+                  </div>
+                  <div class="space-y-2">
+                    <label for="file-upload" class="block text-sm font-medium">Upload File</label>
+                    <input id="file-upload" type="file" accept=".pdf,.doc,.docx,.mp4,.avi,.mov,.ppt,.pptx" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" />
+                    <p class="text-sm text-[hsl(var(--muted-foreground))]">Supported formats: PDF, DOC, DOCX, MP4, AVI, MOV, PPT, PPTX</p>
+                  </div>
+                  <button type="submit" id="upload-button" class="w-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] py-2 rounded-[var(--radius)] shadow-[var(--shadow-glow)] font-semibold">Upload Material</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Manage Materials Tab -->
+            <div id="content-manage" class="tab-content bg-[hsl(var(--card)/0.5)] backdrop-blur-sm border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)]">
+              <div class="p-6">
+                <h2 class="text-xl font-bold">Manage Existing Materials</h2>
+                <p class="text-[hsl(var(--muted-foreground))] mb-6">View, edit, or remove uploaded materials</p>
+                <div class="text-center py-12">
+                  <p class="text-[hsl(var(--muted-foreground))] mb-4">Material management interface would be implemented here</p>
+                  <button class="bg-transparent border border-[hsl(var(--border))] text-[hsl(var(--foreground))] px-4 py-2 rounded-[var(--radius)] flex items-center mx-auto">
+                    <svg class="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Coming Soon
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="content-analytics" class="tab-content bg-[hsl(var(--card)/0.5)] backdrop-blur-sm border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)]">
+              <div class="p-6">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                  Platform Analytics
+                </h2>
+                <p class="text-[hsl(var(--muted-foreground))] mb-6">Monitor downloads, views, and user engagement</p>
+                <div class="text-center py-12">
+                  <p class="text-[hsl(var(--muted-foreground))] mb-4">Analytics dashboard would be implemented here</p>
+                  <button class="bg-transparent border border-[hsl(var(--border))] text-[hsl(var(--foreground))] px-4 py-2 rounded-[var(--radius)] flex items-center mx-auto">
+                    <svg class="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    Coming Soon
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showToast(title, description) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 bg-[hsl(var(--card))] text-[hsl(var(--foreground))] p-4 rounded-[var(--radius)] shadow-[var(--shadow-glow)] z-50';
+        toast.innerHTML = `<h3 class="font-bold">${title}</h3><p>${description}</p>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      // Tab switching
+      const tabs = document.querySelectorAll('.tab-button');
+      const contents = document.querySelectorAll('.tab-content');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => {
+            t.classList.remove('bg-[hsl(var(--primary))]', 'text-[hsl(var(--primary-foreground))]');
+            t.classList.add('bg-transparent', 'text-[hsl(var(--foreground))]');
+          });
+          contents.forEach(c => c.classList.remove('active'));
+          tab.classList.add('bg-[hsl(var(--primary))]', 'text-[hsl(var(--primary-foreground))]');
+          document.getElementById(`content-${tab.id.replace('tab-', '')}`).classList.add('active');
+        });
+      });
+
+      // Form handling
+      document.getElementById('upload-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('title').value;
+        const type = document.getElementById('type').value;
+        const subject = document.getElementById('subject').value;
+        const grade = document.getElementById('grade').value;
+        const description = document.getElementById('description').value;
+        const file = document.getElementById('file-upload').files[0];
+        const uploadButton = document.getElementById('upload-button');
+
+        if (!title || !type || !subject || !grade || !description || !file) {
+          showToast('Upload Failed', 'Please fill all fields and select a file.');
+          return;
+        }
+
+        uploadButton.textContent = 'Uploading...';
+        uploadButton.disabled = true;
+
+        setTimeout(() => {
+          showToast('Upload Successful', `"${title}" has been uploaded successfully!`);
+          document.getElementById('upload-form').reset();
+          document.getElementById('file-upload').value = '';
+          uploadButton.textContent = 'Upload Material';
+          uploadButton.disabled = false;
+        }, 2000);
+      });
+    </script>
+  </body>
+</html>

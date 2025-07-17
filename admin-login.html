@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduHub - Admin Login</title>
+    <meta name="description" content="Enter your credentials to access the admin dashboard" />
+    <meta name="author" content="EduHub" />
+    <meta property="og:title" content="EduHub - Admin Login" />
+    <meta property="og:description" content="Enter your credentials to access the admin dashboard" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@eduhub" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <style>
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 84% 4.9%;
+        --primary: 210 100% 60%; /* Blue shade */
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 210 100% 70%;
+        --secondary: 210 40% 96%;
+        --secondary-foreground: 222 47% 11%;
+        --muted: 210 40% 96%;
+        --muted-foreground: 215 16% 47%;
+        --accent: 195 100% 85%;
+        --accent-foreground: 222 84% 4.9%;
+        --accent-glow: 195 100% 90%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 214 32% 91%;
+        --input: 214 32% 91%;
+        --ring: 210 100% 60%;
+        --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+        --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-glow)));
+        --gradient-hero: linear-gradient(135deg, hsl(0 0% 96%), hsl(210 40% 98%));
+        --shadow-glow: 0 0 30px hsl(var(--primary) / 0.2);
+        --shadow-accent-glow: 0 0 20px hsl(var(--accent) / 0.3);
+        --radius: 0.75rem;
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 240 5.9% 10%;
+        --sidebar-primary-foreground: 0 0% 98%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+      }
+
+      .dark {
+        --background: 222 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 210 100% 60%;
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 210 100% 70%;
+        --secondary: 217 33% 17%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217 33% 17%;
+        --muted-foreground: 215 16% 65%;
+        --accent: 195 100% 85%;
+        --accent-foreground: 222 84% 4.9%;
+        --accent-glow: 195 100% 90%;
+        --destructive: 0 63% 31%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217 33% 17%;
+        --input: 217 33% 17%;
+        --ring: 210 100% 60%;
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 224.3 76.3% 48%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+      }
+
+      * {
+        border-color: hsl(var(--border));
+      }
+
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+      }
+
+      .btn-admin {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        box-shadow: 0 4px 6px rgba(56, 189, 248, 0.3); /* Blue shadow */
+        transition: all 0.3s ease;
+      }
+
+      .btn-admin:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(56, 189, 248, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="min-h-screen bg-[var(--gradient-hero)]">
+      <!-- Navigation -->
+      <nav class="bg-[hsl(var(--card)/0.8)] border-b border-[hsl(var(--border)/0.5)] backdrop-blur-sm fixed w-full top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+          <a href="/" class="text-2xl font-bold bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</a>
+          <div class="space-x-4">
+            <a href="/materials.html" class="text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]">Materials</a>
+            <a href="/admin-login.html" class="btn-admin py-2 px-4 rounded-[var(--radius)]">Admin Login</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <div class="pt-20 pb-12 px-4 flex items-center justify-center">
+        <div class="w-full max-w-md bg-[hsl(var(--card)/0.8)] backdrop-blur-md border border-[hsl(var(--border)/0.5)] rounded-[var(--radius)] shadow-[var(--shadow-glow)] p-6">
+          <!-- Logo -->
+          <div class="flex justify-center mb-6">
+            <svg class="h-16 w-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path fill="#38BDF8" d="M12 2L3 7v10l9 5 9-5V7l-9-5z" /> <!-- Blue shield base -->
+              <path fill="#FFFFFF" d="M12 7v10l4-2.5V9.5L12 7z" /> <!-- White section -->
+              <path stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 2L3 7v10l9 5 9-5V7l-9-5z" />
+            </svg>
+          </div>
+          <!-- Login Header -->
+          <div class="text-center">
+            <h1 class="text-2xl font-bold mb-2">
+              <span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">Admin Login</span>
+            </h1>
+            <p class="text-[hsl(var(--muted-foreground))]">Enter your credentials to access the admin dashboard</p>
+          </div>
+          <!-- Login Form -->
+          <div class="mt-6">
+            <form id="login-form" class="space-y-4">
+              <div class="space-y-2">
+                <label for="email" class="block text-sm font-medium">Email</label>
+                <input id="email" type="email" value="mbofheni@gmail.com" placeholder="mbofheni@gmail.com" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" />
+              </div>
+              <div class="space-y-2">
+                <label for="password" class="block text-sm font-medium">Password</label>
+                <div class="relative">
+                  <input id="password" type="password" placeholder="Enter your password" required class="w-full py-2 px-3 border border-[hsl(var(--input))] rounded-[var(--radius)] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]" />
+                  <button id="toggle-password" type="button" class="absolute right-0 top-0 h-full px-3 text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]">
+                    <svg id="eye-icon" class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <button type="submit" id="submit-button" class="w-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] py-2 rounded-[var(--radius)] shadow-[var(--shadow-glow)] font-semibold hover:shadow-[0 6px 8px rgba(56, 189, 248, 0.4)] hover:translate-y-[-2px] transition-all duration-300">
+                <span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Sign In
+              </button>
+            </form>
+            <div class="mt-6 p-4 bg-[hsl(var(--muted)/0.2)] rounded-[var(--radius)]">
+              <p class="text-sm text-[hsl(var(--muted-foreground))] text-center">
+                Demo Credentials:<br />
+                Email: mbofheni@gmail.com<br />
+                Password: admin123
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Firebase Configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDZjmRfYDPW1EC58Wj0l9yxjoE6rgqhqc8",
+        authDomain: "school-app-39092.firebaseapp.com",
+        projectId: "school-app-39092",
+        storageBucket: "school-app-39092.firebasestorage.app",
+        messagingSenderId: "1043664358438",
+        appId: "1:1043664358438:web:a91aab2d53a541368a2ae7",
+        measurementId: "G-ENPLJLLP1M"
+      };
+
+      // Initialize Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+
+      // Listen for authentication state changes
+      auth.onAuthStateChanged((user) => {
+        if (user && user.emailVerified) {
+          showToast('Login Successful', 'Welcome to the admin dashboard!');
+          window.location.href = '/admin-dashboard.html';
+        }
+      });
+
+      function showToast(title, description, variant = 'default') {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 right-4 p-4 rounded-[var(--radius)] shadow-[var(--shadow-glow)] z-50 ${variant === 'destructive' ? 'bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))]' : 'bg-[hsl(var(--card))] text-[hsl(var(--foreground))]'} `;
+        toast.innerHTML = `<h3 class="font-bold">${title}</h3><p>${description}</p>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      document.getElementById('toggle-password').addEventListener('click', () => {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eye-icon');
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />`;
+        } else {
+          passwordInput.type = 'password';
+          eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+        }
+      });
+
+      document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const submitButton = document.getElementById('submit-button');
+        submitButton.textContent = 'Signing In...';
+        submitButton.disabled = true;
+
+        // Restrict to mbofheni@gmail.com
+        if (email !== 'mbofheni@gmail.com') {
+          showToast('Access Denied', 'Only mbofheni@gmail.com is authorized to log in.', 'destructive');
+          submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Sign In';
+          submitButton.disabled = false;
+          return;
+        }
+
+        // Sign in with email and password
+        auth.signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            if (!user.emailVerified) {
+              showToast('Verification Required', 'Please verify your email by clicking the link sent to ' + email);
+              return user.sendEmailVerification();
+            }
+            showToast('Login Successful', 'Welcome to the admin dashboard!');
+            window.location.href = '/admin-dashboard.html';
+          })
+          .catch((error) => {
+            const errorMessage = error.message;
+            showToast('Login Failed', errorMessage, 'destructive');
+            submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Sign In';
+            submitButton.disabled = false;
+          });
+      });
+    </script>
+  </body>
+</html>

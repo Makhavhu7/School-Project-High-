@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>glow-school-vault - Landing</title>
+    <meta name="description" content="Lovable Generated Project - Landing Page" />
+    <meta name="author" content="Lovable" />
+    <meta property="og:title" content="glow-school-vault - Landing" />
+    <meta property="og:description" content="Lovable Generated Project" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-router-dom@6.22.0/dist/umd/react-router-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 84% 4.9%;
+        --primary: 210 100% 60%;
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 210 100% 70%;
+        --secondary: 210 40% 96%;
+        --secondary-foreground: 222 47% 11%;
+        --muted: 210 40% 96%;
+        --muted-foreground: 215 16% 47%;
+        --accent: 195 100% 85%;
+        --accent-foreground: 222 84% 4.9%;
+        --accent-glow: 195 100% 90%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 214 32% 91%;
+        --input: 214 32% 91%;
+        --ring: 210 100% 60%;
+        --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+        --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-glow)));
+        --gradient-hero: linear-gradient(135deg, hsl(0 0% 96%), hsl(210 40% 98%));
+        --shadow-glow: 0 0 30px hsl(var(--primary) / 0.2);
+        --shadow-accent-glow: 0 0 20px hsl(var(--accent) / 0.3);
+        --radius: 0.75rem;
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 240 5.9% 10%;
+        --sidebar-primary-foreground: 0 0% 98%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+      }
+
+      .dark {
+        --background: 222 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 210 100% 60%;
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 210 100% 70%;
+        --secondary: 217 33% 17%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217 33% 17%;
+        --muted-foreground: 215 16% 65%;
+        --accent: 195 100% 85%;
+        --accent-foreground: 222 84% 4.9%;
+        --accent-glow: 195 100% 90%;
+        --destructive: 0 63% 31%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217 33% 17%;
+        --input: 217 33% 17%;
+        --ring: 210 100% 60%;
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 224.3 76.3% 48%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+      }
+
+      * {
+        border-color: hsl(var(--border));
+      }
+
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+      }
+
+      @keyframes logo-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        a:nth-of-type(2) .logo {
+          animation: logo-spin infinite 20s linear;
+        }
+      }
+
+      .logo {
+        height: 6em;
+        padding: 1.5em;
+        will-change: filter;
+        transition: filter 300ms;
+      }
+      .logo:hover {
+        filter: drop-shadow(0 0 2em #646cffaa);
+      }
+      .logo.react:hover {
+        filter: drop-shadow(0 0 2em #61dafbaa);
+      }
+      .card {
+        padding: 2em;
+      }
+      .read-the-docs {
+        color: #888;
+      }
+      .animate-float {
+        animation: float 3s ease-in-out infinite;
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      .animate-glow-pulse {
+        animation: glow-pulse 2s ease-in-out infinite;
+      }
+      @keyframes glow-pulse {
+        0%, 100% { box-shadow: 0 0 10px hsl(var(--primary) / 0.2); }
+        50% { box-shadow: 0 0 20px hsl(var(--primary) / 0.4); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { createRoot } = ReactDOM;
+      const { Link } = ReactRouterDOM;
+
+      // Navigation Component
+      const Navigation = () => {
+        return (
+          <nav className="fixed top-0 left-0 right-0 bg-sidebar-background/80 backdrop-blur-md border-b border-sidebar-border z-50">
+            <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+              <Link to="/" className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                EduHub
+              </Link>
+              <div className="flex gap-4">
+                <Link to="/materials" className="text-sidebar-foreground hover:text-sidebar-primary">
+                  Materials
+                </Link>
+                <Link to="/admin/login" className="text-sidebar-foreground hover:text-sidebar-primary">
+                  Admin
+                </Link>
+              </div>
+            </div>
+          </nav>
+        );
+      };
+
+      // Button Component
+      const Button = ({ children, className, variant = "default", size = "default", ...props }) => {
+        const baseStyles = "inline-flex items-center justify-center rounded-md font-medium transition-colors";
+        const variants = {
+          default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow",
+          outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        };
+        const sizes = {
+          default: "h-10 px-4 py-2",
+          sm: "h-9 rounded-md px-3",
+          lg: "h-11 rounded-md px-8",
+        };
+        return (
+          <button
+            className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+            {...props}
+          >
+            {children}
+          </button>
+        );
+      };
+
+      // Card Components
+      const Card = ({ className, children }) => (
+        <div className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}>
+          {children}
+        </div>
+      );
+      const CardContent = ({ className, children }) => (
+        <div className={`p-6 pt-0 ${className}`}>{children}</div>
+      );
+
+      // Landing Component
+      const Landing = () => {
+        return (
+          <div className="min-h-screen bg-gradient-hero">
+            <Navigation />
+            <section className="pt-24 pb-12 px-4">
+              <div className="container mx-auto text-center">
+                <div className="animate-float">
+                  <h1 className="text-5xl md:text-7xl font-bold mb-6">
+                    <span className="bg-gradient-primary bg-clip-text text-transparent">
+                      Your Gateway to
+                    </span>
+                    <br />
+                    <span className="text-foreground">Academic Excellence</span>
+                  </h1>
+                </div>
+                <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+                  Access comprehensive study materials, video lectures, and question papers
+                  designed specifically for high school students. Learn, practice, and excel.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link to="/materials">
+                    <Button size="lg" className="shadow-glow animate-glow-pulse">
+                      <lucide.BookOpen className="mr-2 h-5 w-5" />
+                      Explore Materials
+                    </Button>
+                  </Link>
+                  <Button variant="outline" size="lg" className="shadow-accent-glow">
+                    <lucide.Star className="mr-2 h-5 w-5" />
+                    Featured Content
+                  </Button>
+                </div>
+              </div>
+            </section>
+            <section className="py-16 px-4">
+              <div className="container mx-auto">
+                <h2 className="text-3xl font-bold text-center mb-12">
+                  <span className="bg-gradient-accent bg-clip-text">
+                    Everything You Need to Succeed
+                  </span>
+                </h2>
+                <div className="grid md:grid-cols-3 gap-8">
+                  <Card className="bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-glow transition-all duration-300 hover:scale-105">
+                    <CardContent className="p-6 text-center">
+                      <div className="bg-gradient-primary p-3 rounded-full w-fit mx-auto mb-4">
+                        <lucide.BookOpen className="h-8 w-8 text-primary-foreground" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3">Study Notes</h3>
+                      <p className="text-muted-foreground">
+                        Comprehensive notes covering all subjects with clear explanations
+                        and key concepts highlighted for easy understanding.
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-accent-glow transition-all duration-300 hover:scale-105">
+                    <CardContent className="p-6 text-center">
+                      <div className="bg-gradient-accent p-3 rounded-full w-fit mx-auto mb-4">
+                        <lucide.Video className="h-8 w-8 text-accent-foreground" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3">Video Lectures</h3>
+                      <p className="text-muted-foreground">
+                        High-quality video content with expert explanations to help you
+                        grasp complex topics and improve your understanding.
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-glow transition-all duration-300 hover:scale-105">
+                    <CardContent className="p-6 text-center">
+                      <div className="bg-gradient-primary p-3 rounded-full w-fit mx-auto mb-4">
+                        <lucide.FileText className="h-8 w-8 text-primary-foreground" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3">Question Papers</h3>
+                      <p className="text-muted-foreground">
+                        Previous year papers and practice questions to help you prepare
+                        effectively for exams and assessments.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </section>
+            <section className="py-16 px-4 bg-card/20">
+              <div className="container mx-auto">
+                <div className="grid md:grid-cols-3 gap-8 text-center">
+                  <div className="space-y-2">
+                    <div className="text-4xl font-bold text-primary">500+</div>
+                    <div className="text-muted-foreground">Study Materials</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-4xl font-bold text-accent">200+</div>
+                    <div className="text-muted-foreground">Video Lectures</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-4xl font-bold text-primary">100+</div>
+                    <div className="text-muted-foreground">Question Papers</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section className="py-16 px-4">
+              <div className="container mx-auto text-center">
+                <h2 className="text-3xl font-bold mb-6">
+                  Ready to Start Your Learning Journey?
+                </h2>
+                <p className="text-xl text-muted-foreground mb-8">
+                  Join thousands of students who are already improving their grades
+                </p>
+                <Link to="/materials">
+                  <Button size="lg" className="shadow-glow animate-glow-pulse">
+                    <lucide.Download className="mr-2 h-5 w-5" />
+                    Access Materials Now
+                  </Button>
+                </Link>
+              </div>
+            </section>
+            <footer className="bg-card/30 py-8 px-4 border-t border-border">
+              <div className="container mx-auto text-center">
+                <p className="text-muted-foreground">
+                  © 2024 EduHub. Empowering students through quality education.
+                </p>
+              </div>
+            </footer>
+          </div>
+        );
+      };
+
+      // Render
+      const root = createRoot(document.getElementById('root'));
+      root.render(<Landing />);
+    </script>
+  </body>
+</html>
