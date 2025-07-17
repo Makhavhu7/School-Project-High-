@@ -177,9 +177,9 @@
     </div>
 
     <script type="module">
-      // Secure Firebase Configuration (Move to environment variables in production)
+      // Secure Firebase Configuration
       const firebaseConfig = {
-        apiKey: "AIzaSyDZjmRfYDPW1EC58Wj0l9yxjoE6rgqhqc8", // Hardcoded for now; replace with env vars
+        apiKey: "AIzaSyDZjmRfYDPW1EC58Wj0l9yxjoE6rgqhqc8",
         authDomain: "school-app-39092.firebaseapp.com",
         projectId: "school-app-39092",
         storageBucket: "school-app-39092.firebasestorage.app",
@@ -197,9 +197,10 @@
 
       // Configure Firebase to use email link authentication
       const actionCodeSettings = {
-        url: 'https://makhschooleasy.netlify.app/admin-dashboard.html', // Update to deployed URL
+        // Use a local URL for development; update to deployed URL for production
+        url: window.location.origin + '/admin-dashboard.html', // e.g., http://localhost:5500/admin-dashboard.html
         handleCodeInApp: true,
-        dynamicLinkDomain: 'your-dynamic-link-domain.firebaseapp.com' // Replace with your domain
+        dynamicLinkDomain: 'your-dynamic-link-domain.firebaseapp.com' // Replace with your configured domain
       };
 
       function showToast(title, description, variant = 'default') {
@@ -236,14 +237,15 @@
             submitButton.disabled = false;
           })
           .catch((error) => {
-            showToast('Error', error.message, 'destructive');
+            console.error('Send Sign-In Link Error:', error); // Debug the error
+            showToast('Error', error.message || 'Failed to send sign-in link.', 'destructive');
             submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link';
             submitButton.disabled = false;
           });
       });
 
       // Handle the email link when the user clicks it
-      if (isSignInWithEmailLink(window.location.href) && window.localStorage.getItem('emailForSignIn')) {
+      if (isSignInWithEmailLink(auth, window.location.href) && window.localStorage.getItem('emailForSignIn')) {
         signInWithEmailLink(auth, window.localStorage.getItem('emailForSignIn'), window.location.href)
           .then((result) => {
             window.localStorage.removeItem('emailForSignIn');
@@ -257,6 +259,7 @@
             window.location.href = '/admin-dashboard.html';
           })
           .catch((error) => {
+            console.error('Sign-In Link Error:', error); // Debug the error
             showToast('Login Failed', error.message, 'destructive');
           });
       }
