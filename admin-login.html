@@ -1,3 +1,5 @@
+Its Working But After I Click On The Link It Must Just Direct Me To The Dashboard On My Device:
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -13,11 +15,10 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@eduhub" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    <script src="https://cdn.tailwindcss.com"></script> <!-- Replace with compiled CSS for production: see Tailwind setup instructions -->
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Replace with compiled CSS for production -->
     <!-- Firebase SDK CDN with module type -->
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
     <style>
       :root {
         --background: 0 0% 100%;
@@ -192,18 +193,15 @@
       // Initialize Firebase
       import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
       import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-      import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
-      const db = getFirestore(app);
 
-      // Generate a unique session ID
-      const generateSessionId = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-          const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
+      // Configure Firebase to use email link authentication
+      const actionCodeSettings = {
+        url: 'https://makhschooleasy.netlify.app/admin-dashboard.html', // Updated for production
+        handleCodeInApp: true,
+        dynamicLinkDomain: 'your-dynamic-link-domain.firebaseapp.com' // Replace with your Firebase Dynamic Links domain
       };
 
       function showToast(title, description, variant = 'default') {
@@ -216,7 +214,7 @@
         setTimeout(() => toast.remove(), 3000);
       }
 
-      document.getElementById('login-form').addEventListener('submit', async (e) => {
+      document.getElementById('login-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const emailInput = document.getElementById('email');
         const email = emailInput.value;
@@ -232,70 +230,35 @@
           return;
         }
 
-        // Generate session ID and store in Firestore
-        const sessionId = generateSessionId();
-        try {
-          await setDoc(doc(db, 'authSessions', sessionId), {
-            email: email,
-            status: 'pending',
-            timestamp: new Date().toISOString()
+        // Send sign-in link
+        sendSignInLinkToEmail(auth, email, actionCodeSettings)
+          .then(() => {
+            window.localStorage.setItem('emailForSignIn', email);
+            showToast('Success', 'A sign-in link has been sent to ' + email + '. Check your inbox and spam/junk folders.');
+            submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link';
+            submitButton.disabled = false;
+          })
+          .catch((error) => {
+            console.error('Send Sign-In Link Error:', error);
+            showToast('Error', error.message || 'Failed to send sign-in link. Ensure the domain is authorized in Firebase Console.', 'destructive');
+            submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link';
+            submitButton.disabled = false;
           });
-
-          // Configure Firebase to use email link authentication with session ID
-          const actionCodeSettings = {
-            url: `https://makhschooleasy.netlify.app/admin-login.html?sessionId=${sessionId}`,
-            handleCodeInApp: true,
-            dynamicLinkDomain: 'your-dynamic-link-domain.firebaseapp.com' // Replace with your Firebase Dynamic Links domain
-          };
-
-          // Send sign-in link
-          await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-          window.localStorage.setItem('emailForSignIn', email);
-          window.localStorage.setItem('authSessionId', sessionId);
-          showToast('Success', 'A sign-in link has been sent to ' + email + '. Check your inbox and spam/junk folders.');
-
-          // Listen for Firestore changes
-          const unsubscribe = onSnapshot(doc(db, 'authSessions', sessionId), (doc) => {
-            if (doc.exists() && doc.data().status === 'authenticated') {
-              showToast('Login Successful', 'Redirecting to the admin dashboard!');
-              window.location.href = '/admin-dashboard.html';
-              unsubscribe(); // Stop listening
-            }
-          });
-        } catch (error) {
-          console.error('Send Sign-In Link Error:', error);
-          showToast('Error', error.message || 'Failed to send sign-in link. Ensure the domain is authorized in Firebase Console.', 'destructive');
-        } finally {
-          submitButton.textContent = '<span class="bg-[var(--gradient-primary)] bg-clip-text text-transparent">EduHub</span> Send Sign-In Link';
-          submitButton.disabled = false;
-        }
       });
 
       // Handle the email link when the user clicks it
-      const urlParams = new URLSearchParams(window.location.search);
-      const sessionId = urlParams.get('sessionId');
       if (isSignInWithEmailLink(auth, window.location.href) && window.localStorage.getItem('emailForSignIn')) {
         signInWithEmailLink(auth, window.localStorage.getItem('emailForSignIn'), window.location.href)
-          .then(async (result) => {
+          .then((result) => {
             window.localStorage.removeItem('emailForSignIn');
             if (result.user.email !== 'mbofhenijunior7@gmail.com') {
-              await signOut(auth);
-              showToast('Access Denied', 'Unauthorized email detected.', 'destructive');
+              signOut(auth).then(() => {
+                showToast('Access Denied', 'Unauthorized email detected.', 'destructive');
+              });
               return;
             }
-
-            // Update Firestore to mark session as authenticated
-            if (sessionId) {
-              await setDoc(doc(db, 'authSessions', sessionId), {
-                email: result.user.email,
-                status: 'authenticated',
-                timestamp: new Date().toISOString()
-              }, { merge: true });
-            }
-
-            // Show confirmation on the device that clicked the link
-            showToast('Link Clicked', 'Authentication completed. The initiating device will redirect to the dashboard.');
-            // Optionally, redirect this device to a confirmation page or stay on login
+            showToast('Login Successful', 'Redirecting to the admin dashboard!');
+            window.location.href = '/admin-dashboard.html';
           })
           .catch((error) => {
             console.error('Sign-In Link Error:', error);
